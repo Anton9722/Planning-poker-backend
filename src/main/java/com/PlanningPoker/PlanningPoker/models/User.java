@@ -1,4 +1,4 @@
-package com.PlanningPoker.models;
+package com.PlanningPoker.PlanningPoker.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
