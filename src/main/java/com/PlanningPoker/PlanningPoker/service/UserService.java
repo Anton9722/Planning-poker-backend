@@ -1,11 +1,11 @@
-package com.PlanningPoker.service;
+package com.PlanningPoker.PlanningPoker.service;
 
 import java.util.List;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
 
-import com.PlanningPoker.models.User;
+import com.PlanningPoker.PlanningPoker.models.User;
 
 @Service
 public class UserService {
