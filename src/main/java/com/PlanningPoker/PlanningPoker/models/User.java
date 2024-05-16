@@ -2,16 +2,28 @@ package com.PlanningPoker.PlanningPoker.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Document(collection="Users")
 public class User {
     @Id
     private String id;
     private String username;
+    private String password;
     
     public User(String id, String username) {
         this.id = id;
         this.username = username;
+    }
+
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public boolean isPasswordCorrect(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.matches(password, getPassword());
     }
 
     public String getId() {
@@ -30,5 +42,8 @@ public class User {
         this.username = username;
     }
 
+    public String getPassword() {
+        return password;
+    }
     
 }
