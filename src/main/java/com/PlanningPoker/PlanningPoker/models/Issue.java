@@ -2,20 +2,22 @@ package com.PlanningPoker.PlanningPoker.models;
 
 import java.util.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "Issues")
 public class Issue {
     @Id
-    private UUID issueId;
-    private UUID projectId;
-    private UUID creatorId;
+    private String id;
+    private String projectId;
+    private String creatorId;
     private String name;
     private boolean isDone;
-    private long completedTime;
-    private List<UUID> assignedIds;
-    private Map<UUID, Long> estimatedTimes;
+    private int completedTime;
+    private List<String> assignedIds;
+    private Map<String, Integer> estimatedTimes;
 
-    public Issue(String name, UUID projectId, UUID creatorId) {
-        this.issueId = UUID.randomUUID();
+    public Issue(String id, String name, String projectId, String creatorId) {
+        this.id = id;
         this.projectId = projectId;
         this.creatorId = creatorId;
         this.name = name;
@@ -25,27 +27,27 @@ public class Issue {
         this.estimatedTimes = new HashMap<>();
     }
 
-    public UUID getIssueId() {
-        return issueId;
+    public String getId() {
+        return id;
     }
 
-    public void setIssueId(UUID issueId) {
-        this.issueId = issueId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public UUID getProjectId() {
+    public String getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(UUID projectId) {
+    public void setProjectId(String projectId) {
         this.projectId = projectId;
     }
 
-    public UUID getCreatorId() {
+    public String getCreatorId() {
         return creatorId;
     }
 
-    public void setCreatorId(UUID creatorId) {
+    public void setCreatorId(String creatorId) {
         this.creatorId = creatorId;
     }
 
@@ -65,27 +67,27 @@ public class Issue {
         this.isDone = isDone;
     }
 
-    public long getCompletedTime() {
+    public int getCompletedTime() {
         return completedTime;
     }
 
-    public void setCompletedTime(long completedTime) {
+    public void setCompletedTime(int completedTime) {
         this.completedTime = completedTime;
     }
 
-    public List<UUID> getAssignedIds() {
+    public List<String> getAssignedIds() {
         return assignedIds;
     }
 
-    public void setAssignedIds(List<UUID> assignedIds) {
+    public void setAssignedIds(List<String> assignedIds) {
         this.assignedIds = assignedIds;
     }
 
-    public Map<UUID, Long> getEstimatedTimes() {
+    public Map<String, Integer> getEstimatedTimes() {
         return estimatedTimes;
     }
 
-    public void setEstimatedTimes(Map<UUID, Long> estimatedTimes) {
+    public void setEstimatedTimes(Map<String, Integer> estimatedTimes) {
         this.estimatedTimes = estimatedTimes;
     }
 }
