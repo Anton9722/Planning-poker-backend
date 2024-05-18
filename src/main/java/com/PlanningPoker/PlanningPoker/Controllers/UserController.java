@@ -1,10 +1,12 @@
 package com.PlanningPoker.PlanningPoker.Controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +15,7 @@ import com.PlanningPoker.PlanningPoker.models.User;
 import com.PlanningPoker.PlanningPoker.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 
@@ -25,7 +28,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    
+
     @GetMapping //TESTMAPPING FÖR UTVECKLING
     public List<User> testMapping () {
         return userService.test();
@@ -36,9 +39,9 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    @GetMapping("/user/get-user-by-id/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable String id) {
-        return userService.getUserById(id);
+    @GetMapping("/user/get-user-by-id")
+    public ResponseEntity<?> getUserById(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId) {
+        return userService.getUserById(id, sessionId);
     }
 
     @PostMapping("/user/login")
@@ -46,4 +49,18 @@ public class UserController {
         return userService.checkLogin(loginRequest);
     }
     
+    @GetMapping("user/get-projectList")
+    public ResponseEntity<?> getProjectList(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId) {
+        return userService.getProjectList(id, sessionId);
+    }
+
+    @PatchMapping("user/add-project")
+    public ResponseEntity<?> addProjectToProjectList(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId, @RequestBody Map<String, String> project) {
+        return userService.addProjectToProjectList(id, sessionId, project);
+    }
+
+    @PostMapping("user/logout")
+    public ResponseEntity<?> logoutUser(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId) {
+        return userService.logoutUser(id, sessionId);
+    }
 }

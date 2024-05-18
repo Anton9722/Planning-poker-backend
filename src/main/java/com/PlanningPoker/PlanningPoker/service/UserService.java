@@ -1,6 +1,9 @@
 package com.PlanningPoker.PlanningPoker.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -45,7 +48,11 @@ public class UserService {
     }
 
     //hämta user från id
-    public ResponseEntity<?> getUserById(String id) {
+    public ResponseEntity<?> getUserById(String id, String sessionId) {
+
+        if (authenticateUser(id, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
 
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(id));
@@ -77,13 +84,88 @@ public class UserService {
 
         if(userToCheck.isPasswordCorrect(loginRequest.getPassword())) {
 
-            return ResponseEntity.status(HttpStatus.OK).body(userToCheck.getId());
+            userToCheck.setSessionId(UUID.randomUUID().toString());
+            mongoOperations.save(userToCheck);
+
+            Map<String, String> loginResponse = new HashMap<>();
+            loginResponse.put("id", userToCheck.getId());
+            loginResponse.put("sessionId", userToCheck.getSessionId());
+
+            return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 
         } else {
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
 
         }
+    }
+    //authenticate
+    public boolean authenticateUser(String id, String sessionId) {
+
+        if(id == null || sessionId == null || id.isEmpty() || sessionId.isEmpty()) {
+            return false;
+        }
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        User foundUser = mongoOperations.findOne(query, User.class);
+
+        if(foundUser != null && foundUser.getSessionId() != null && foundUser.getSessionId().equals(sessionId)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    //hämtar projects listan
+    public ResponseEntity<?> getProjectList(String id, String sessionId) {
+
+        if (authenticateUser(id, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
+        
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        User user = mongoOperations.findOne(query, User.class);
+        
+        return ResponseEntity.ok(user.getProjectList());
+    }
+
+    //lägg till project i project listan
+    public ResponseEntity<?> addProjectToProjectList(String id, String sessionId, Map<String, String> project) {
+
+        if (authenticateUser(id, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        User user = mongoOperations.findOne(query, User.class);
+
+        user.addProject(project);
+        mongoOperations.save(user);
+
+        return ResponseEntity.ok().body("Project added to project list");
+
+    }
+
+    //logga ut
+    public ResponseEntity<?> logoutUser(String id, String sessionId) {
+
+        if (authenticateUser(id, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        User user = mongoOperations.findOne(query, User.class);
+
+        user.setSessionId(null);
+        mongoOperations.save(user);
+
+        return ResponseEntity.ok().body("Logout successful");
+
     }
 
 }
