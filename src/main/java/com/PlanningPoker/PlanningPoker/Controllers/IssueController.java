@@ -1,9 +1,9 @@
 package com.PlanningPoker.PlanningPoker.Controllers;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import com.PlanningPoker.PlanningPoker.models.Issue;
 import com.PlanningPoker.PlanningPoker.service.IssueService;
-import java.util.*;
-import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
 @RestController
@@ -14,33 +14,63 @@ public class IssueController {
         this.issueService = issueService;
     }
 
-    @GetMapping("project/{projectId}/issues")
-    public List<Issue> getProjectIssues(@PathVariable UUID projectId) {
-        return issueService.getProjectIssues(projectId);
+    // Returnerar alla issues från ett projekt.
+    @GetMapping("project/issues")
+    public ResponseEntity<?> getProjectIssues(
+        @RequestHeader("projectId") String projectId,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.getProjectIssues(projectId, sessionId);
     }
 
-    @GetMapping("project/issue/{issueId}")
-    public Issue getIssueById(@PathVariable UUID issueId) {
-        return issueService.getIssueById(issueId);
+    // Returnerar ett issue.
+    @GetMapping("project/issue")
+    public ResponseEntity<?> getIssueById(
+        @RequestHeader("issueId") String issueId,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.getIssueById(issueId, sessionId);
     }
 
-    @PostMapping("/issue")
-    public Issue createIssue(@RequestBody Issue issue) {
-        return issueService.createIssue(issue);
+    // Skapar ett issue.
+    @PostMapping("project/issue")
+    public ResponseEntity<?> createIssue(
+        @RequestBody Issue issue,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.createIssue(issue, sessionId);
     }
 
-    @DeleteMapping("/issue/{issueId}")
-    public Issue deleteIssue(@PathVariable UUID issueId) {
-        return issueService.deleteIssue(issueId);
+    // Tar bort ett issue.
+    @DeleteMapping("project/issue")
+    public ResponseEntity<?> deleteIssue(
+        @RequestHeader("issueId") String issueId,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.deleteIssue(issueId, sessionId);
     }
 
-    @PostMapping("/issue/{issueId}")
-    public Issue estimateTime(@PathVariable UUID issueId) {
-        return issueService.estimateTime(issueId);
+    /* 
+    // Tilldelar en medlem till ett issue.
+    @PatchMapping("project/issue")
+    public ResponseEntity<?> assignIssue(
+        @RequestHeader("userId") String userId,
+        @RequestHeader("issueId") String issueId,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.assignIssue(userId, issueId, sessionId);
     }
 
-    @PostMapping("/issue/{issueId}")
-    public Issue closeIssue(@PathVariable UUID issueId) {
-        return issueService.closeIssue(issueId);
+    // Sätter estimerad tid.
+    @PatchMapping("project/issue")
+    public ResponseEntity<?> estimateTime(
+        @RequestHeader("userId") String userId,
+        @RequestHeader("issueId") String issueId,
+        @RequestHeader("estimatedTime") int estimatedTime,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.estimateTime(userId, issueId, estimatedTime, sessionId);
     }
+
+    // Avslutar ett issue.
+    @PatchMapping("project/issue")
+    public ResponseEntity<?> closeIssue(
+        @RequestHeader("issueId") String issueId,
+        @RequestHeader("sessionID") String sessionId) {
+            return issueService.closeIssue(issueId, sessionId);
+    }*/
 }
