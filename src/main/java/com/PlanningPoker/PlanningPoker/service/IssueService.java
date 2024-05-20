@@ -15,8 +15,20 @@ public class IssueService {
         this.mongoOperations = mongoOperations;
     }
 
+    // Authenticate
+    public boolean authenticateUser(String id, String sessionId) {
+        if (id == null || sessionId == null || id.isEmpty() || sessionId.isEmpty()) {
+            return false;
+        }
+        User foundUser = mongoOperations.findOne(new Query(Criteria.where("id").is(id)), User.class);
+        return foundUser != null && foundUser.getSessionId() != null && foundUser.getSessionId().equals(sessionId);
+    }
+
     // Returnerar alla issues från ett projekt.
-    public ResponseEntity<?> getProjectIssues(String projectId, String sessionId) {
+    public ResponseEntity<?> getProjectIssues(String userId, String projectId, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         List<Issue> issues = mongoOperations.findAll(Issue.class).stream()
                 .filter((Issue issue) -> issue.getProjectId().equals(projectId)).toList();
         return !issues.isEmpty()
@@ -25,21 +37,30 @@ public class IssueService {
     }
 
     // Returnerar ett issue.
-    public ResponseEntity<?> getIssueById(String issueId, String sessionId) {
+    public ResponseEntity<?> getIssueById(String userId, String issueId, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         return mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class) != null
                 ? ResponseEntity.ok().body(issueId)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
     }
 
     // Skapar ett issue.
-    public ResponseEntity<?> createIssue(Issue issue, String sessionId) {
+    public ResponseEntity<?> createIssue(String userId, Issue issue, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         return mongoOperations.insert(issue) != null
                 ? ResponseEntity.ok().body(issue)
                 : ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("Issue not created.");
     }
 
     // Tar bort ett issue.
-    public ResponseEntity<?> deleteIssue(String issueId, String sessionId) {
+    public ResponseEntity<?> deleteIssue(String userId, String issueId, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         return mongoOperations.remove(new Query(Criteria.where("id").is(issueId)), Issue.class).getDeletedCount() > 0
                 ? ResponseEntity.ok().body(issueId)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
@@ -47,6 +68,9 @@ public class IssueService {
 
     // Tilldelar en medlem till ett issue.
     public ResponseEntity<?> assignIssue(String userId, String issueId, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null) {
             issue.getAssignedIds().add(userId);
@@ -60,6 +84,9 @@ public class IssueService {
 
     // Sätter estimerad tid.
     public ResponseEntity<?> assignTime(String userId, String issueId, int estimatedTime, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null) {
             issue.getEstimatedTimes().put(userId, estimatedTime);
@@ -72,9 +99,14 @@ public class IssueService {
     }
 
     // Avslutar ett issue. Sätter isDone till true.
-    public ResponseEntity<?> closeIssue(String issueId, String sessionId) {
+    public ResponseEntity<?> closeIssue(String userId, String issueId, int completedTime, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null) {
+            mongoOperations.updateFirst(new Query(Criteria.where("id").is(issueId)), Update.update("completedTime",
+                    completedTime), Issue.class);
             mongoOperations.updateFirst(new Query(Criteria.where("id").is(issueId)), Update.update("isDone", true),
                     Issue.class);
             return ResponseEntity.ok().body(issueId);
@@ -84,7 +116,10 @@ public class IssueService {
     }
 
     // Returnerar medelvärdet för estimerad tid.
-    public ResponseEntity<?> getEstimatedTime(String issueId, String sessionId) {
+    public ResponseEntity<?> getEstimatedTime(String userId, String issueId, String sessionId) {
+        if (authenticateUser(userId, sessionId) == false) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
+        }
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null) {
             int estimatedTime = 0;
