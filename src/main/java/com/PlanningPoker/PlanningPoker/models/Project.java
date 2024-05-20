@@ -14,12 +14,13 @@ public class Project {
 	private String name;
 	
 
-	private List<User> memberList = new ArrayList<>();
+	private List<String> memberList;
 
-	public Project(String id, String creatorId, String name, List<User> memberList) {
+	public Project(String id, String creatorId, String name, List<String> memberList) {
 		this.id = id;
 		this.name = name;
 		this.creatorId = creatorId;
+		this.memberList = memberList != null ? memberList : new ArrayList<>();
 	}
 
 	public String getId() {
@@ -38,11 +39,11 @@ public class Project {
 		this.name = name;
 	}
 
-	public List<User> getMemberList() {
+	public List<String> getMemberList() {
 		return memberList;
 	}
 
-	public void setMemberList(List<User> memberList) {
+	public void setMemberList(List<String> memberList) {
 		this.memberList = memberList;
 	}
 
