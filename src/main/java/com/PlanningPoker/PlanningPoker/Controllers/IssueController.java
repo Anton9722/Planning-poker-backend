@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @CrossOrigin("*")
 @RestController
 public class IssueController {
-    private IssueService issueService;
+    private final IssueService issueService;
 
     public IssueController(IssueService issueService) {
         this.issueService = issueService;
@@ -17,11 +17,20 @@ public class IssueController {
 
     // Returnerar alla issues från ett projekt.
     @GetMapping("project/{projectId}/issues")
-    public ResponseEntity<?> getProjectIssues(
+    public ResponseEntity<?> getIssues(
             @RequestHeader("userId") String userId,
             @PathVariable("projectId") String projectId,
             @RequestHeader("sessionId") String sessionId) {
         return issueService.getProjectIssues(userId, projectId, sessionId);
+    }
+
+    // Tar bort alla issues från ett projekt.
+    @DeleteMapping("project/{projectId}/issues")
+    public ResponseEntity<?> deleteIssues(
+            @RequestHeader("userId") String userId,
+            @PathVariable("projectId") String projectId,
+            @RequestHeader("sessionId") String sessionId) {
+        return issueService.deleteProjectIssues(userId, projectId, sessionId);
     }
 
     // Returnerar ett issue.
@@ -60,14 +69,23 @@ public class IssueController {
         return issueService.assignIssue(userId, issueId, sessionId);
     }
 
-    // Tilldelar en tid till ett issue.
-    @PatchMapping("project/issue/assign-time/{issueId}")
+    // Tilldelar en estimerad tid till ett issue.
+    @PatchMapping("project/issue/assign-estimated-time/{issueId}")
     public ResponseEntity<?> assignTime(
             @RequestHeader("userId") String userId,
             @PathVariable("issueId") String issueId,
             @RequestHeader("estimatedTime") int estimatedTime,
             @RequestHeader("sessionId") String sessionId) {
         return issueService.assignTime(userId, issueId, estimatedTime, sessionId);
+    }
+
+    // Returnerar medelvärdet för estimerad tid.
+    @GetMapping("project/issue/estimated-time/{issueId}")
+    public ResponseEntity<?> getEstimatedTime(
+            @RequestHeader("userId") String userId,
+            @PathVariable("issueId") String issueId,
+            @RequestHeader("sessionId") String sessionId) {
+        return issueService.getEstimatedTime(userId, issueId, sessionId);
     }
 
     // Stänger ett issue och sätter slutförd tid.
@@ -78,14 +96,5 @@ public class IssueController {
             @RequestHeader("completedTime") int completedTime,
             @RequestHeader("sessionId") String sessionId) {
         return issueService.closeIssue(userId, issueId, completedTime, sessionId);
-    }
-
-    // Returnerar medelvärdet för estimerad tid.
-    @GetMapping("project/issue/estimatedTime/{issueId}")
-    public ResponseEntity<?> getEstimatedTime(
-            @RequestHeader("userId") String userId,
-            @PathVariable("issueId") String issueId,
-            @RequestHeader("sessionId") String sessionId) {
-        return issueService.getEstimatedTime(userId, issueId, sessionId);
     }
 }
