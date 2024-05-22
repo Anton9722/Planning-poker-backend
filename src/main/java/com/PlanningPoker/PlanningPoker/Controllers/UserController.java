@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.PlanningPoker.PlanningPoker.models.LoginRequest;
-import com.PlanningPoker.PlanningPoker.models.Project;
 import com.PlanningPoker.PlanningPoker.models.User;
 import com.PlanningPoker.PlanningPoker.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,8 +54,8 @@ public class UserController {
     }
 
     @PatchMapping("user/add-project")
-    public ResponseEntity<?> addProjectToProjectList(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId, @RequestHeader String projectId) {
-        return userService.addProjectToProjectList(id, sessionId, projectId);
+    public ResponseEntity<?> addProjectToProjectList(@RequestHeader("id") String id, @RequestHeader("sessionID") String sessionId, @RequestBody Map<String, String> project) {
+        return userService.addProjectToProjectList(id, sessionId, project);
     }
 
     @PostMapping("user/logout")

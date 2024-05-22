@@ -14,10 +14,10 @@ public class User {
     private String id;
     private String username;
     private String password;
-    private List<String> projectList;
+    private List<Map<String,String>> projectList;
     private String sessionId;
     
-    public User(String id, String username, List<String> projectList, String sessionId) {
+    public User(String id, String username, List<Map<String,String>> projectList, String sessionId) {
         this.id = id;
         this.username = username;
         this.sessionId = sessionId;
@@ -54,20 +54,20 @@ public class User {
         return password;
     }
 
-    public List<String> getProjectList() {
+    public List<Map<String,String>> getProjectList() {
         return projectList;
     }
 
-    public void setProjectList(List<String> projectList) {
+    public void setProjectList(List<Map<String,String>> projectList) {
         this.projectList = projectList;
     }
 
-    public void addProject(String projectId) {
-        projectList.add(projectId);
+    public void addProject(Map<String,String> project) {
+        projectList.add(project);
     }
 
-    public void removeProject(String projectId) {
-        projectList.remove(projectId);
+    public void removeProject(Map<String,String> project) {
+        projectList.remove(project);
     }
 
     public String getSessionId() {

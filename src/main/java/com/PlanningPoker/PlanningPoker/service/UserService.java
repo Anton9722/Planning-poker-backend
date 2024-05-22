@@ -133,7 +133,7 @@ public class UserService {
     }
 
     //lägg till project i project listan
-    public ResponseEntity<?> addProjectToProjectList(String id, String sessionId, String projectId) {
+    public ResponseEntity<?> addProjectToProjectList(String id, String sessionId, Map<String, String> project) {
 
         if (authenticateUser(id, sessionId) == false) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
@@ -143,7 +143,7 @@ public class UserService {
         query.addCriteria(Criteria.where("id").is(id));
         User user = mongoOperations.findOne(query, User.class);
 
-        user.addProject(projectId);
+        user.addProject(project);
         mongoOperations.save(user);
 
         return ResponseEntity.ok().body("Project added to project list");
@@ -160,7 +160,12 @@ public class UserService {
         query.addCriteria(Criteria.where("id").is(id));
         User user = mongoOperations.findOne(query, User.class);
 
-        user.removeProject(projectIdToRemove);
+        for (Map<String, String> project : user.getProjectList()) {
+            if(project.get("projectID").equals(projectIdToRemove)) {
+                user.removeProject(project);
+            }
+        }
+
         mongoOperations.save(user);
 
         return ResponseEntity.ok().body("Project removed");
