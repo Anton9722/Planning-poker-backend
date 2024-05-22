@@ -1,6 +1,7 @@
 package com.PlanningPoker.PlanningPoker.service;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -57,12 +58,20 @@ public class ProjectService {
 			}
 
 			project.setCreatorId(userId);
-			project.getMemberList().add(user.getId());
+
+			Map<String, String> userToAddToList = new HashMap<>();
+			userToAddToList.put("userID", user.getId());
+			userToAddToList.put("userName", user.getUsername());
+			project.addMember(userToAddToList);
 
 			Project newProject = mongoOperations.insert(project);
 
 			if (newProject != null) {
-				userService.addProjectToProjectList(userId, sessionId, newProject.getId());
+				Map<String, String> newProjectToAdd = new HashMap<>();
+				newProjectToAdd.put("projectName", newProject.getName());
+				newProjectToAdd.put("projectID", newProject.getId());
+				userService.addProjectToProjectList(userId, sessionId, newProjectToAdd);
+
 				return ResponseEntity.ok().body(newProject);
 			} else {
 				return ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("Project not created");
@@ -121,8 +130,16 @@ public class ProjectService {
 		if (userToAdd == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 		}
-		userToAdd.getProjectList().add(project.getId());
-		project.getMemberList().add(userToAdd.getId());
+
+		Map<String, String> newProjectToAdd = new HashMap<>();
+		newProjectToAdd.put("projectName", project.getName());
+		newProjectToAdd.put("projectID", project.getId());
+		userToAdd.addProject(newProjectToAdd);
+
+		Map<String, String> userToAddToList = new HashMap<>();
+		userToAddToList.put("userID", userToAdd.getId());
+		userToAddToList.put("userName", userToAdd.getUsername());
+		project.addMember(userToAddToList);
 
 		mongoOperations.save(project);
 		mongoOperations.save(userToAdd);
@@ -155,8 +172,13 @@ public class ProjectService {
 			if (projectToRemove == null) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
 			}
-	
-		userToRemove.getProjectList().remove(projectToRemove.getId());
+
+		for (Map<String, String> projectInList : userToRemove.getProjectList()) {
+            if(projectInList.get("projectID").equals(projectToRemove.getId())) {
+                userToRemove.removeProject(projectInList);
+            }
+        }
+		
 		project.getMemberList().remove(userToRemove.getId());
 		
 		mongoOperations.save(userToRemove);

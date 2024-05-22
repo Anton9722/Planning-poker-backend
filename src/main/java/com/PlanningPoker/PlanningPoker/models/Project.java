@@ -2,6 +2,7 @@ package com.PlanningPoker.PlanningPoker.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,10 +14,9 @@ public class Project {
 	private String creatorId;
 	private String name;
 	
+	private List<Map<String,String>> memberList;
 
-	private List<String> memberList;
-
-	public Project(String id, String creatorId, String name, List<String> memberList) {
+	public Project(String id, String creatorId, String name, List<Map<String,String>> memberList) {
 		this.id = id;
 		this.name = name;
 		this.creatorId = creatorId;
@@ -39,12 +39,16 @@ public class Project {
 		this.name = name;
 	}
 
-	public List<String> getMemberList() {
+	public List<Map<String,String>> getMemberList() {
 		return memberList;
 	}
 
-	public void setMemberList(List<String> memberList) {
+	public void setMemberList(List<Map<String,String>> memberList) {
 		this.memberList = memberList;
+	}
+
+	public void addMember(Map<String, String> member) {
+		memberList.add(member);
 	}
 
 	public String getCreatorId() {
