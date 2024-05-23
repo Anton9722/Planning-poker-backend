@@ -11,19 +11,17 @@ public class Issue {
     private String projectId;
     private String creatorId;
     private String name;
-    private boolean isDone;
-    private int completedTime;
-    private List<String> assignedIds;
-    private Map<String, Integer> estimatedTimes;
+    private String assignedId;
+    private Integer completedTime;
+    private Map<String, Object> estimatedTimes;
 
     public Issue(String id, String name, String projectId, String creatorId) {
         this.id = id;
         this.projectId = projectId;
         this.creatorId = creatorId;
         this.name = name;
-        this.isDone = false;
-        this.completedTime = 0;
-        this.assignedIds = new ArrayList<>();
+        this.completedTime = null;
+        this.assignedId = null;
         this.estimatedTimes = new HashMap<>();
     }
 
@@ -59,35 +57,27 @@ public class Issue {
         this.name = name;
     }
 
-    public boolean isDone() {
-        return isDone;
-    }
-
-    public void setDone(boolean isDone) {
-        this.isDone = isDone;
-    }
-
-    public int getCompletedTime() {
+    public Integer getCompletedTime() {
         return completedTime;
     }
 
-    public void setCompletedTime(int completedTime) {
+    public void setCompletedTime(Integer completedTime) {
         this.completedTime = completedTime;
     }
 
-    public List<String> getAssignedIds() {
-        return assignedIds;
+    public String getAssignedId() {
+        return assignedId;
     }
 
-    public void setAssignedIds(List<String> assignedIds) {
-        this.assignedIds = assignedIds;
+    public void setAssignedId(String assignedId) {
+        this.assignedId = assignedId;
     }
 
-    public Map<String, Integer> getEstimatedTimes() {
+    public Map<String, Object> getEstimatedTimes() {
         return estimatedTimes;
     }
 
-    public void setEstimatedTimes(Map<String, Integer> estimatedTimes) {
+    public void setEstimatedTimes(Map<String, Object> estimatedTimes) {
         this.estimatedTimes = estimatedTimes;
     }
 }
