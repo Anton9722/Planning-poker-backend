@@ -1,6 +1,7 @@
 package com.PlanningPoker.PlanningPoker.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +42,6 @@ public class ProjectService {
 		}
 	}
 
-
-	// public List<Project> getProjectList() {
-	// 	return mongoOperations.findAll(Project.class);
-	// }
-	
 	public ResponseEntity<?> createProject(Project project, String userId, String sessionId) {	
 		ResponseEntity<?> userResponse = userService.getUserById(userId, sessionId);
 			if (userResponse.getStatusCode() != HttpStatus.OK) {
@@ -99,13 +95,17 @@ public class ProjectService {
 			if (!projectToDelete.getCreatorId().equals(userId)) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not the creator");
 			}
-				userService.removeProjectFromProjectList(userId, sessionId, projectToDelete.getId());
-				mongoOperations.remove(projectToDelete);
-				mongoOperations.save(user);	
-				return ResponseEntity.ok().body("Project " + projectId + " removed!");
+			//Ta bort projekts från användarnas listor
+			Query query = new Query(Criteria.where("projectList.projectID").in(projectId));
+			List <User> usersWithProject = mongoOperations.find(query, User.class);
+				for (User u : usersWithProject) {
+					u.getProjectList().removeIf(project -> projectId.equals(project.get("projectID")));
+					mongoOperations.save(u);
+				}
 
-			//TODO - någon check för att delete i allas projectlist som har det projectet
-	
+				// user.getProjectList().remove(projectId);
+				mongoOperations.remove(projectToDelete);
+				return ResponseEntity.ok().body("Project " + projectId + " removed!");
 	}
 
 	public ResponseEntity<?> addMemberToProject(String userId, String userIdToAdd, String projectId, String sessionId) {
@@ -121,10 +121,16 @@ public class ProjectService {
 			}
 
 		Project project = (Project) projectResponse.getBody();
-		//hitta user
-		if (project.getMemberList().contains(userIdToAdd)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is allready in that project");
+		if (project == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found!");
 		}
+	
+		 // kolla om user redan är tillagd
+		 boolean memberExists = project.getMemberList().stream()
+		 	.anyMatch(member -> userIdToAdd.equals(member.get("userID")));
+	 	if (memberExists) {
+		 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is already in the project");
+	 	}
 
 		User userToAdd = mongoOperations.findOne(new Query(Criteria.where("id").is(userIdToAdd)), User.class);
 		if (userToAdd == null) {
@@ -173,19 +179,23 @@ public class ProjectService {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project not found");
 			}
 
-		for (Map<String, String> projectInList : userToRemove.getProjectList()) {
-            if(projectInList.get("projectID").equals(projectToRemove.getId())) {
-                userToRemove.removeProject(projectInList);
-            }
-        }
+		// kolla om user finns i listan
+		boolean memberExists = project.getMemberList().stream()
+        	.anyMatch(member -> userIdToRemove.equals(member.get("userID")));
+		if (!memberExists) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User is not a member of the project");
+		}
 		
-		project.getMemberList().remove(userToRemove.getId());
+		 // ta bort från projectList
+		 userToRemove.getProjectList().removeIf(projectMap -> projectId.equals(projectMap.get("projectID")));
+
+		 // ta bort från memberList
+		 project.getMemberList().removeIf(member -> userIdToRemove.equals(member.get("userID")));
 		
 		mongoOperations.save(userToRemove);
 		mongoOperations.save(project);
 		
 
 		return ResponseEntity.ok().body("User: " + userToRemove.getUsername() + " removed from " + project.getName());
-	}
-	
+	}	
 }
