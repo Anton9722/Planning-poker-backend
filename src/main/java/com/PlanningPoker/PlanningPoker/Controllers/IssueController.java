@@ -62,30 +62,21 @@ public class IssueController {
 
     // Tilldelar en medlem till ett issue.
     @PatchMapping("project/issue/assign-member/{issueId}")
-    public ResponseEntity<?> assignIssue(
+    public ResponseEntity<?> assignMember(
         @RequestHeader("userId") String userId,
         @PathVariable("issueId") String issueId,
         @RequestHeader("sessionId") String sessionId) {
-            return issueService.assignIssue(userId, issueId, sessionId);
+            return issueService.assignMember(userId, issueId, sessionId);
     }
 
     // Tilldelar en estimerad tid till ett issue.
     @PatchMapping("project/issue/assign-estimated-time/{issueId}")
-    public ResponseEntity<?> assignTime(
+    public ResponseEntity<?> assignEstimatedTime(
         @RequestHeader("userId") String userId,
         @PathVariable("issueId") String issueId,
         @RequestHeader("estimatedTime") int estimatedTime,
         @RequestHeader("sessionId") String sessionId) {
-            return issueService.assignTime(userId, issueId, estimatedTime, sessionId);
-    }
-
-    // Returnerar medelvärdet för estimerad tid.
-    @GetMapping("project/issue/estimated-time/{issueId}")
-    public ResponseEntity<?> getEstimatedTime(
-        @RequestHeader("userId") String userId,
-        @PathVariable("issueId") String issueId,
-        @RequestHeader("sessionId") String sessionId) {
-            return issueService.getEstimatedTime(userId, issueId, sessionId);
+            return issueService.assignEstimatedTime(userId, issueId, estimatedTime, sessionId);
     }
 
     // Stänger ett issue och sätter slutförd tid.
@@ -93,7 +84,7 @@ public class IssueController {
     public ResponseEntity<?> closeIssue(
         @RequestHeader("userId") String userId,
         @PathVariable("issueId") String issueId,
-        @RequestHeader("completedTime") int completedTime,
+        @RequestHeader("completedTime") Integer completedTime,
         @RequestHeader("sessionId") String sessionId) {
             return issueService.closeIssue(userId, issueId, completedTime, sessionId);
     }
