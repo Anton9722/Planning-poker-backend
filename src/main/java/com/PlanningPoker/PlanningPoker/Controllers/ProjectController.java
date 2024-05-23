@@ -56,17 +56,17 @@ public class ProjectController {
 	@PutMapping("/project/addmember") 
 	public ResponseEntity<?> addMemberToProject(
 			@RequestHeader String userId, 
-			@RequestHeader String userIdToAdd, 
+			@RequestHeader String usernameToAdd, 
 			@RequestHeader String projectId,
 			@RequestHeader String sessionId) {
-		return projectService.addMemberToProject(userId, userIdToAdd, projectId, sessionId);
+		return projectService.addMemberToProject(userId, usernameToAdd, projectId, sessionId);
 	}
 	@DeleteMapping("/project/removemember") 
 	public ResponseEntity<?> removeMemberFromProject(
 			@RequestHeader String userId, 
-			@RequestHeader String userIdToRemove, 
+			@RequestHeader String usernameToRemove, 
 			@RequestHeader String projectId, 
 			@RequestHeader String sessionId) {
-		return projectService.removeMemberFromProject(userId, userIdToRemove, projectId, sessionId);
+		return projectService.removeMemberFromProject(userId, usernameToRemove, projectId, sessionId);
 	}
 }
