@@ -78,13 +78,13 @@ public class IssueController {
         @RequestHeader("sessionId") String sessionId) {
             return issueService.assignEstimatedTime(userId, issueId, estimatedTime, sessionId);
     }
-
+    
     // Stänger ett issue och sätter slutförd tid.
     @PatchMapping("project/issue/close/{issueId}")
     public ResponseEntity<?> closeIssue(
         @RequestHeader("userId") String userId,
         @PathVariable("issueId") String issueId,
-        @RequestHeader("completedTime") Integer completedTime,
+        @RequestHeader("completedTime") int completedTime,
         @RequestHeader("sessionId") String sessionId) {
             return issueService.closeIssue(userId, issueId, completedTime, sessionId);
     }

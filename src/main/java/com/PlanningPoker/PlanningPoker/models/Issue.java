@@ -15,14 +15,14 @@ public class Issue {
     private Integer completedTime;
     private Map<String, Object> estimatedTimes;
 
-    public Issue(String id, String name, String projectId, String creatorId) {
+    public Issue(String id, String name, String projectId, String creatorId, Map<String, Object> estimatedTimes) {
         this.id = id;
         this.projectId = projectId;
         this.creatorId = creatorId;
         this.name = name;
         this.completedTime = null;
         this.assignedId = null;
-        this.estimatedTimes = new HashMap<>();
+        this.estimatedTimes = estimatedTimes;
     }
 
     public String getId() {
@@ -79,5 +79,17 @@ public class Issue {
 
     public void setEstimatedTimes(Map<String, Object> estimatedTimes) {
         this.estimatedTimes = estimatedTimes;
+    }
+
+    public void setModifiedEstimatedTimes(String userId) {
+        this.estimatedTimes.forEach((k, v) -> {
+            if (v == null) {
+                this.estimatedTimes.put(k, false);
+            } else if (k.equals(userId)) {
+                this.estimatedTimes.put(k, v);
+            } else {
+                this.estimatedTimes.put(k, true);
+            }
+        });
     }
 }

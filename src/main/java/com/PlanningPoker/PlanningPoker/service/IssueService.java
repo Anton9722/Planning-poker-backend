@@ -27,23 +27,11 @@ public class IssueService {
         List<Issue> issues = mongoOperations.findAll(Issue.class).stream().filter((Issue issue) -> issue.getProjectId().equals(projectId)).toList();
         issues.forEach((Issue issue) -> {
             if (issue.getEstimatedTimes().containsValue(null)) {
-                Map<String, Object> frontEndData = new HashMap<>();
-                issue.getEstimatedTimes().forEach((k, v) -> {
-                    if (v == null) {
-                        frontEndData.put(k, false);
-                    } else if (k.equals(userId)) {
-                        frontEndData.put(k, v);
-                    } else {
-                        frontEndData.put(k, true);
-                    }
-                });
-                issue.setEstimatedTimes(frontEndData);
+                issue.setModifiedEstimatedTimes(userId);
             }
         });
 
-        return !issues.isEmpty()
-            ? ResponseEntity.ok().body(issues)
-            : ResponseEntity.status(HttpStatus.NOT_FOUND).body("No issues found.");
+        return !issues.isEmpty() ? ResponseEntity.ok().body(issues): ResponseEntity.status(HttpStatus.NOT_FOUND).body("No issues found.");
     }
 
     // Raderar alla issues från ett projekt.
@@ -52,11 +40,9 @@ public class IssueService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
         }
 
-        List<Issue> issues = mongoOperations.findAll(Issue.class).stream().filter(
-            (Issue issue) -> mongoOperations.remove(new Query(Criteria.where("projectId").is(projectId)), Issue.class).getDeletedCount() > 0).toList();
-        return !issues.isEmpty()
-            ? ResponseEntity.ok().body(issues)
-            : ResponseEntity.status(HttpStatus.NOT_FOUND).body("No issues found.");
+        List<Issue> issues = mongoOperations.findAll(Issue.class).stream().filter((Issue issue) -> issue.getProjectId().equals(projectId)).toList();
+        issues.forEach((Issue issue) -> mongoOperations.remove(new Query(Criteria.where("projectId").is(projectId)), Issue.class));
+        return !issues.isEmpty() ? ResponseEntity.ok().body(issues): ResponseEntity.status(HttpStatus.NOT_FOUND).body("No issues found.");
     }
 
     // Returnerar ett issue.
@@ -67,19 +53,9 @@ public class IssueService {
 
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null && issue.getEstimatedTimes().containsValue(null)) {
-            Map<String, Object> frontEndData = new HashMap<>();
-            issue.getEstimatedTimes().forEach((k, v) -> {
-                if (v == null) {
-                    frontEndData.put(k, false);
-                } else if (k.equals(userId)) {
-                    frontEndData.put(k, v);
-                } else {
-                    frontEndData.put(k, true);
-                }
-            });
-            issue.setEstimatedTimes(frontEndData);
+            issue.setModifiedEstimatedTimes(userId);
         }
-        return issue != null ? ResponseEntity.ok().body(issue): ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
+        return issue != null ? ResponseEntity.ok().body(issue) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
     }
 
     // Skapar ett issue.
@@ -88,9 +64,7 @@ public class IssueService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
         }
 
-        return mongoOperations.insert(issue) != null
-            ? ResponseEntity.ok().body(issue)
-            : ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("Issue not created.");
+        return mongoOperations.insert(issue) != null ? ResponseEntity.ok().body(issue) : ResponseEntity.status(HttpStatus.NOT_MODIFIED).body("Issue not created.");
     }
 
     // Tar bort ett issue.
@@ -99,9 +73,13 @@ public class IssueService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: User authentication failed");
         }
 
-        return mongoOperations.remove(new Query(Criteria.where("id").is(issueId)), Issue.class).getDeletedCount() > 0
-            ? ResponseEntity.ok().body(issueId)
-            : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
+        Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
+        if (issue != null) {
+            mongoOperations.remove(new Query(Criteria.where("id").is(issueId)), Issue.class);
+            return ResponseEntity.ok().body(issue);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");
+        }
     }
 
     // Tilldelar en medlem till ett issue.
@@ -144,6 +122,7 @@ public class IssueService {
 
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null && issue.getCompletedTime() == null) {
+            issue.setCompletedTime(completedTime);
             mongoOperations.updateFirst(new Query(Criteria.where("id").is(issueId)), Update.update("completedTime", completedTime), Issue.class);
             return ResponseEntity.ok().body(issue);
         } else {
