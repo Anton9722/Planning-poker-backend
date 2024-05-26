@@ -91,7 +91,7 @@ public class IssueService {
         Issue issue = mongoOperations.findOne(new Query(Criteria.where("id").is(issueId)), Issue.class);
         if (issue != null && issue.getAssignedId() == null) {
             issue.setAssignedId(userId);
-            mongoOperations.updateFirst(new Query(Criteria.where("id").is(issueId)), Update.update("assignedIds", userId), Issue.class);
+            mongoOperations.updateFirst(new Query(Criteria.where("id").is(issueId)), Update.update("assignedId", userId), Issue.class);
             return ResponseEntity.ok().body(issue);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Issue not found.");

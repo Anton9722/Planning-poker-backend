@@ -68,7 +68,24 @@ public class UserService {
 
         }
     }
+    //hämta username från id
+    public ResponseEntity<?> getUsernameById(String id) {
 
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(id));
+        User user = mongoOperations.findOne(query, User.class);
+
+        if(user == null) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no user with ID \"" + id + "\" was found");
+
+        } else {
+
+            return ResponseEntity.ok(user.getUsername());
+
+        }
+
+    }
     //check login
     public ResponseEntity<?> checkLogin(LoginRequest loginRequest) {
 
