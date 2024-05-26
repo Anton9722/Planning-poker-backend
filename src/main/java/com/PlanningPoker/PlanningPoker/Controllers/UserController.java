@@ -43,6 +43,11 @@ public class UserController {
         return userService.getUserById(id, sessionId);
     }
 
+    @GetMapping("user/get-username-from-id")
+    public ResponseEntity<?> getUsernameById(@RequestHeader("id") String id) {
+        return userService.getUsernameById(id);
+    }
+
     @PostMapping("/user/login")
     public ResponseEntity<?> checkLogin(@RequestBody LoginRequest loginRequest) {
         return userService.checkLogin(loginRequest);
