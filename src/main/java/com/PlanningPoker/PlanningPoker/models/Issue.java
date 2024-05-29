@@ -22,7 +22,7 @@ public class Issue {
         this.name = name;
         this.completedTime = null;
         this.assignedId = null;
-        this.estimatedTimes = estimatedTimes;
+        this.estimatedTimes = estimatedTimes != null ? estimatedTimes : new HashMap<String, Object>();
     }
 
     public String getId() {
