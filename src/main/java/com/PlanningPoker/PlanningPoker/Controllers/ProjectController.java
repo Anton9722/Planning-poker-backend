@@ -61,12 +61,14 @@ public class ProjectController {
 			@RequestHeader String sessionId) {
 		return projectService.addMemberToProject(userId, usernameToAdd, projectId, sessionId);
 	}
-	@DeleteMapping("/project/removemember") 
+	
+	@DeleteMapping("/project/removemember")
 	public ResponseEntity<?> removeMemberFromProject(
-			@RequestHeader String userId, 
-			@RequestHeader String usernameToRemove, 
-			@RequestHeader String projectId, 
-			@RequestHeader String sessionId) {
-		return projectService.removeMemberFromProject(userId, usernameToRemove, projectId, sessionId);
+			@RequestHeader String userId,
+			@RequestHeader String usernameToRemove,
+			@RequestHeader String projectId,
+			@RequestHeader String sessionId,
+			@RequestHeader String userIdToRemove) {
+		return projectService.removeMemberFromProject(userId, usernameToRemove, projectId, sessionId, userIdToRemove);
 	}
 }
