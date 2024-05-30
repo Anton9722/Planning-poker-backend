@@ -160,7 +160,7 @@ public class IssueService {
                         && issue.getEstimatedTimes().containsKey(userIdToRemove))
                 .toList();
         issues.forEach((Issue issue) -> {
-            issue.getEstimatedTimes().remove(userId);
+            issue.getEstimatedTimes().remove(userIdToRemove);
             mongoOperations.updateFirst(new Query(Criteria.where("id").is(issue.getId())),
                     Update.update("estimatedTimes", issue.getEstimatedTimes()), Issue.class);
         });
